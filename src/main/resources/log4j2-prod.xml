@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+	<Appenders>
+		<RollingRandomAccessFile name="logfile" fileName="/opt/log/app-platform-mock/app-platform-mock.log"
+			filePattern="/opt/log/app-platform-mock/app-platform-mock-%d{yyyy-MM-dd}.log.%i">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] (%c{1.}:%line)- %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<SizeBasedTriggeringPolicy size="50MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="50" />
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<AsyncRoot level="info" includeLocation="true">
+			<AppenderRef ref="logfile" />
+		</AsyncRoot>
+		<AsyncLogger name="org.apache.ibatis" level="debug" />
+		<AsyncLogger name="com.bill99.inf.acms.client.util" level="warn" />
+		<AsyncLogger name="com.bill99.mdp.service" level="warn" />
+		<AsyncLogger name="com.bill99.mdp.advice.service" level="warn" />
+	</Loggers>
+</Configuration> 

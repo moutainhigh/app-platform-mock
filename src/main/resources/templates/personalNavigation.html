@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div class="col-sm-3 col-md-2 sidebar" th:fragment="personalLeftMenu">
+	          <ul class="nav nav-sidebar" id="personalLeftNavigation">
+	            <li id="query"><a>个人信息查询<span class="sr-only">(current)</span></a></li>
+	            <li><a>个人信息修改</a></li>
+	            <li id="realName"><a>实名</a></li>
+				<!-- href="/personal/realName" -->
+	            <li id="bindCard"><a>绑卡</a></li>
+	            <li id="order"><a>下单</a></li>
+	          </ul>
+		</div>
+		<script type="text/javascript" th:fragment="personalLeftMenuEvent">
+			//col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main
+			$(function(){
+				$('#personalLeftNavigation li').click(function(){
+					$('#personalLeftNavigation .active').removeClass("active");
+					$(this).addClass("active");
+					
+					var val=$(this).attr("id");
+					var url = "";
+					if (val == "query") {
+						url = "/personal/query";
+					} else if (val == "realName") {
+						url = "/personal/realNamePage";
+					} else if (val == "bindCard") {
+						url = "/personal/query";
+					} else if (val == "order"){
+						url = "/personal/order";
+					} else {
+						return;
+					}
+					 $('#main').load(url);
+				});
+			});
+		</script>
+	</body>
+</html>

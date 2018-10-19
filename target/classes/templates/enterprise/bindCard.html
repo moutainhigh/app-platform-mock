@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+  
+  <div class="container">
+	<form class="form-horizontal" style="padding: 5px 100px 5px;" id="form-bindCard">
+		<div class="form-group" style="margin-top: 10px;">
+			<fieldset class="col-sm-2 control-label">
+				<legend>绑卡</legend>
+			</fieldset>
+		</div>
+		<div class="form-group">
+			<label for="account" class="col-sm-2 control-label">姓名：*</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" readonly="readonly" id="name" name="name" th:value="${loginInfo.name}">
+			</div>
+		</div>
+		<div class="form-group">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">银行卡号：*</label>
+		  <div class="col-sm-4">
+          	<input type="text" class="form-control" id="bankAcctId" name="bankAcctId"></input>
+          </div>
+		</div>
+		<div class="form-group">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">银行编号：*</label>
+		  <div class="col-sm-4">
+          	<input type="text" class="form-control" id="bankName" name="bankName" placeholder="参见银行编号"></input>
+          </div>
+		</div>
+		<div class="form-group">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">分支行名称：*</label>
+		  <div class="col-sm-4">
+          	<input type="text" class="form-control" id="branchBankName" name="branchBankName"></input>
+          </div>
+		</div>
+		<div class="form-group">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">开户行省份：*</label>
+		  <div class="col-sm-4">
+          	<input type="text" class="form-control" id="province" name="province" placeholder="参见行政区划国标代码"></input>
+          </div>
+		</div>
+		<div class="form-group">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">开户行城市：*</label>
+		  <div class="col-sm-4">
+          	<input type="text" class="form-control" id="city" name="city" placeholder="参见行政区划国标代码"></input>
+          </div>
+		</div>
+		<div class="form-group">
+			<label for="address" class="col-sm-2 control-label"></label>
+			<div class="col-sm-4">
+				<button class="btn btn-lg btn-primary btn-block" type="button" onclick="formSubmit()">立即绑卡</button>
+			</div>
+		</div>
+	</form>
+  </div>
+    <script type="text/javascript">
+    	function formSubmit(){
+    		
+    		var check = formCheck();
+			if (check === false) {
+				return false;
+			}
+			
+    		var data=$('#form-bindCard').serializeObject();
+			var submitData=decodeURIComponent(data,true)
+			$.ajax({
+				 type: "post",
+				 url: "enterprise/bindCard",
+				 data: JSON.stringify(data),
+				 contentType : "application/json",
+				 success: function (data) {
+					 if (data.rspCode == "0000") {
+						 $('#main').html("<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\"><h2>绑卡成功</h2></div>");
+						 return;
+					 }
+					 alert(data.rspMsg);
+				 },
+				 error: function () {
+				 	alert("error");
+				 },
+				 complete: function () {
+				 
+				 }
+			});
+    	}
+    	function formCheck() {
+			var check = false;
+			check = notNull($("input[name='name']").val());
+			if (check === false) {
+				alert("姓名 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='bankAcctId']").val());
+			if (check === false) {
+				alert("银行卡号 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='bankName']").val());
+			if (check === false) {
+				alert("银行编号 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='branchBankName']").val());
+			if (check === false) {
+				alert("分支行名称 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='province']").val());
+			if (check === false) {
+				alert("开户行省份 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='city']").val());
+			if (check === false) {
+				alert("开户行城市 不能为空")
+				return false;
+			}
+			return true;
+		}
+		function notNull(param) {
+			if (null === param) {
+				return false;
+			}
+			if (param.trim() === "") {
+				return false;
+			}
+			return true;
+		}
+    </script>
+  </body>
+</html>

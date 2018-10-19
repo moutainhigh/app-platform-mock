@@ -1,0 +1,162 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="personal/order/etao.js"></script>
+	<script type="text/javascript" src="personal/order/cart.js"></script>
+	<link href="personal/order/cart.css" media="screen" rel="stylesheet" type="text/css" />
+    
+    <style type="text/css">
+    	.pay-active{
+/*      		background-color: #f5f5f5; */
+    		background-color: #7ba9d0;
+    	}
+    	.bankacctcard-active{
+    		background-color: #f183a1;
+    	}
+    </style>
+    
+    <script type="text/javascript">
+    
+	    $(function(){
+	    	$("#alipay-list").hide();
+			$("#99bill-list").hide();
+			$('#pay-list li').click(function(){
+				$('#pay-list .pay-active').removeClass("pay-active");
+				$(this).addClass("pay-active");
+				var val=$(this).attr("id");
+				if (val == "bankacctcard") {
+					$("#bankacctcard-list").show();
+// 					$("#alipay-list").hide();
+// 					$("#99bill-list").hide();
+				} else if (val == "alipay") {
+					$("#bankacctcard-list").hide();
+// 					$("#alipay-list").show();
+// 					$("#99bill-list").hide();
+				} else {
+					$("#bankacctcard-list").hide();
+// 					$("#alipay-list").hide();
+// 					$("#99bill-list").show();
+				}
+			});
+			$('#bankacctcard-list li').click(function(){
+				$('#bankacctcard-list .bankacctcard-active').removeClass("bankacctcard-active");
+				$(this).addClass("bankacctcard-active");
+				var val=$(this).attr("id");
+			});
+			$('#alipay-list li').click(function(){
+				$('#alipay-list .bankacctcard-active').removeClass("bankacctcard-active");
+				$(this).addClass("bankacctcard-active");
+				var val=$(this).attr("id");
+			});
+			$('#99bill-list li').click(function(){
+				$('#99bill-list .bankacctcard-active').removeClass("bankacctcard-active");
+				$(this).addClass("bankacctcard-active");
+				var val=$(this).attr("id");
+			});
+		});
+    
+    	function orderpay() {
+    		var payInfo = {};
+    		var payType = $('#pay-list .pay-active').attr("id");
+    		payInfo.payType = payType;
+    		if (payType == "bankacctcard") {
+    			payInfo.bankacctcard = $('#bankacctcard-list .bankacctcard-active').text();
+    		}
+    		payInfo.orderId = $('#orderId').text();
+    		$.ajax({
+				 type: "post",
+				 url: "personal/orderPay",
+				 data: JSON.stringify(payInfo),
+				 contentType : "application/json",
+				 success: function (data) {
+					 $('#main').html(data);
+					 return;
+				 },
+				 error: function () {
+				 	alert("服务器异常");
+				 },
+				 complete: function () {
+				 
+				 }
+			});
+    		console.log(payInfo);
+    	}
+    </script>
+</head>
+<body>
+  <div class="container" style="margin-left: 211px;">
+	<div class="cart-wrap">
+		<div class="masthead" id="pay-list">
+			<h3 class="text-muted">&nbsp订单支付</h3>
+			<nav>
+				<ul class="nav nav-justified">
+					<li class="pay-active bankacctcard" id="bankacctcard"><a>银行卡</a></li>
+					<li class="alipay" id="alipay"><a>支付宝</a></li>
+					<li class="99bill" id="99bill"><a>快钱</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="masthead" id="bankacctcard-list">
+			<nav>
+				<ul class="nav nav-justified">
+					<li id="card1" class="bankacctcard-active"><a>622588250141703</a></li>
+					<li id="card2"><a>622588250141703</a></li>
+					<li id="card3"><a>622588250141703</a></li>
+					<li id="card4"><a>622588250141703</a></li>
+				</ul>
+			</nav>
+		</div>
+		<!-- <div class="masthead" id="alipay-list">
+			<nav>
+				<ul class="nav nav-justified">
+					<li id="alipay1" class="bankacctcard-active"><a>支付宝1</a></li>
+					<li id="alipay2"><a>支付宝2</a></li>
+					<li id="alipay3"><a>支付宝3</a></li>
+					<li id="alipay4"><a>支付宝4</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="masthead" id="99bill-list">
+			<nav>
+				<ul class="nav nav-justified">
+					<li id="99bill1" class="bankacctcard-active"><a>快钱1</a></li>
+					<li id="99bill2"><a>快钱2</a></li>
+					<li id="99bill3"><a>快钱3</a></li>
+					<li id="99bill4"><a>快钱4</a></li>
+				</ul>
+			</nav>
+		</div> -->
+<!-- 		<div class="row"> -->
+<!-- 			<div class="col-sm-3 col-md-2"> -->
+<!-- 	          <ul class="nav nav-sidebar"> -->
+<!-- 	            <li id="card1" class="bankacctcard-active"><a>622588250141703</a></li> -->
+<!-- 	            <li id="card2"><a>622588250031703</a></li> -->
+<!-- 	            <li id="card3"><a>622588251341703</a></li> -->
+<!-- 	            <li id="card4"><a>6225882501311703</a></li> -->
+<!-- 	          </ul> -->
+<!-- 		</div> -->
+		</div>
+		<div class="row">
+			<div class="col-md-12 col-lg-12 col-sm-12">
+				<div class="cart-summary">
+					<div style="margin-left: 2rem;" class="pull-right">
+						<a href="javascript:void(0);" onclick="orderpay()"
+							id="btn_settlement" type="button" class="btn btn-primary">确认支付</a>
+					</div>
+					<div style="margin-left: 1rem; margin-top: 0.4rem;" class="pull-right total">
+						<label>金额合计:<span class="price-total large-bold-red" th:text="${orderAmount}"></span></label>
+					</div>
+					<div style="margin-top: 4px;" class="pull-right">
+						<label>订单id<span id="orderId" class="large-bold-red" style="margin: 0 4px;" th:text="${orderId}"></span>，您选择了<span class="large-bold-red" style="margin: 0 4px;" th:text="${typeCount}"></span>种产品型号，共计<span class="large-bold-red" style="margin: 0 4px;" th:text="${count}"></span>件
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    
+</body>
+</html>

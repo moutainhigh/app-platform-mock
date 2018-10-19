@@ -1,0 +1,160 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--     <script type="text/javascript" src="personal/order/etao.js"></script> -->
+<!-- 	<script type="text/javascript" src="personal/order/cart.js"></script> -->
+<!-- 	<link href="personal/order/cart.css" media="screen" rel="stylesheet" type="text/css" /> -->
+    
+    <style type="text/css">
+    	.pay-active{
+/*      		background-color: #f5f5f5; */
+    		background-color: #7ba9d0;
+    	}
+    	.bankacctcard-active{
+    		background-color: #f183a1;
+    	}
+    </style>
+    
+    <script type="text/javascript">
+    
+	    $(function(){
+	    	$(".form-bankAccIdInfo").hide();
+			$('.ul-bankAccIdInfo .a-showBankAcctIdInfo').click(function(){
+				$('.ul-bankAccIdInfo').removeClass("pay-active");
+				$(this).parents(".ul-bankAccIdInfo").addClass("pay-active");
+				var val=$(this).attr("id");
+				$(".form-bankAccIdInfo").hide();
+				$(this).next().show();
+			});
+			$('.ul-bankAccIdInfo form a').click(function(){
+				if (!confirm("确认解除")) {
+					return;
+				}
+				var memberBankAcctId = $(this).data().bind;
+	    		$.ajax({
+					 type: "get",
+					 url: "personal/unBindbankCard/" + memberBankAcctId,
+// 					 data: JSON.stringify(payInfo),
+// 					 contentType : "application/json",
+					 success: function (data) {
+						 if (data.rspCode === "0000") {
+							 $("#ul-" + memberBankAcctId).hide();
+							 alert("解绑成功");
+							 return;
+						 }
+						 alert(data.rspMsg);
+					 },
+					 error: function () {
+					 	alert("服务器异常");
+					 },
+					 complete: function () {
+					 
+					 }
+				});
+			});
+// 			$('#bankacctcard-list li').click(function(){
+// 				$('#bankacctcard-list .bankacctcard-active').removeClass("bankacctcard-active");
+// 				$(this).addClass("bankacctcard-active");
+// 				var val=$(this).attr("id");
+// 			});
+		});
+    	
+    </script>
+</head>
+<body>
+  <div class="container" style="float:right;">
+<!-- 	<div class="cart-wrap"> -->
+		<div class="masthead" id="bankacctcard-list">
+			<h3 class="text-muted" style="text-align: center;">绑卡列表</h3>
+			<nav>
+				<ul class="nav nav-justified ul-bankAccIdInfo" th:attrappend="id='ul-' + ${bindCard.memberBankAcctId}" th:each="bindCard : ${bindCardList}">
+					<li th:attrappend="id='li-' + ${bindCard.bankAcctId}">
+						<a th:text="${bindCard.bankAcctId}" class="a-showBankAcctIdInfo"></a>
+						
+						<form class="form-horizontal form-bankAccIdInfo" style="padding: 5px 100px 5px;" th:attrappend="id='form-' + ${bindCard.bankAcctId}">
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">银行卡主键Id信：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.memberBankAcctId}">
+								</div>
+								<label for="account" class="col-sm-2 control-label">银行账户：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.bankAcctId}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">姓名：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.name}">
+								</div>
+								<label for="account" class="col-sm-2 control-label">手机号：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.mobile}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">银行编号：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.bankId}">
+								</div>
+								<label for="account" class="col-sm-2 control-label">卡类型：</label>
+								<div class="col-sm-3">
+									<select class="form-control" name="cardType" disabled="disabled">
+									  	<option value="0001" th:selected="${bindCard.cardType}=='0001'">贷记卡</option>
+										<option value="0002" th:selected="${bindCard.cardType}=='0002'">借记卡</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">银行名：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.bankName}">
+								</div>
+								<label for="account" class="col-sm-2 control-label">状态：</label>
+								<div class="col-sm-3">
+									<select class="form-control" name="idType" disabled="disabled">
+									  	<option value="0" th:selected="${bindCard.status}=='0'">未验证</option>
+										<option value="1" th:selected="${bindCard.status}=='1'">已验证</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">分支行名称：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.branchBankName}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">开户行省份：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.province}">
+								</div>
+								<label for="account" class="col-sm-2 control-label">开户行城市：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.city}">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="account" class="col-sm-2 control-label">绑卡时间：</label>
+								<div class="col-sm-3">
+									<input type="text" class="form-control" readonly="readonly" th:value="${bindCard.bindDateTime}">
+								</div>
+							</div>
+							<div style="margin-left: 2rem; width: 50px" class="pull-right">
+								<a th:attrappend="data-bind=${bindCard.memberBankAcctId}" id="btn_settlement" type="button" class="btn btn-primary">解绑</a>
+							</div>
+						</form>
+					</li>
+				</ul>
+			</nav>
+		</div>
+<!-- 		<div class="masthead" th:attrappend="id=${bindCard.bankAcctId}" th:each="bindCard : ${bindCardList}"> -->
+<!-- 			<h2 th:text="${bindCard.name}"></h2> -->
+<!-- 		</div> -->
+	</div>
+<!--   </div> -->
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div class="col-sm-3 col-md-2 sidebar" th:fragment="enterpriseLeftMenu">
+	          <ul class="nav nav-sidebar" id="enterpriseLeftNavigation">
+	            <li id="query"><a>企业信息查询<span class="sr-only">(current)</span></a></li>
+	            <li id="bindCard"><a>企业绑卡</a></li>
+	            <li id="bindCardList"><a>企业绑卡列表</a></li>
+	            <li id="rechargeWithdrawals"><a>充值提现</a></li>
+	          </ul>
+		</div>
+		<script type="text/javascript" th:fragment="enterpriseLeftMenuEvent">
+			//col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main
+			$(function(){
+				$('#enterpriseLeftNavigation li').click(function(){
+					
+					var that = $(this);
+					var val = that.attr("id");
+					var url = "";
+					if (val == "query") {
+						url = "enterprise/query";
+					} else if (val == "bindCardList") {
+						url = "enterprise/bindCardList";
+					} else if (val == "bindCard") {
+						url = "enterprise/bindCardPage";
+					} else if (val == "rechargeWithdrawals"){
+						url = "enterprise/rechargeWithdrawalsPage";
+					} else {
+						return;
+					}
+					
+					$('#main').load(url, function(){
+						$('#enterpriseLeftNavigation .active').removeClass("active");
+						that.addClass("active");
+				 	});
+				});
+			});
+		</script>
+	</body>
+</html>

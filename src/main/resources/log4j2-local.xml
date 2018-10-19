@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+	<Appenders>
+		<Console name="stdout" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss,SSS} %-5p [%t] (%c{1.}:%line)- %m%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<AsyncRoot level="info" includeLocation="true">
+			<AppenderRef ref="stdout" />
+		</AsyncRoot>
+		<AsyncLogger name="org.apache.ibatis" level="debug" />
+		<AsyncLogger name="com.bill99.inf.acms.client.util" level="warn" />
+		<AsyncLogger name="com.bill99.mdp.service" level="warn" />
+		<AsyncLogger name="com.bill99.mdp.advice.service" level="warn" />
+	</Loggers>
+</Configuration> 

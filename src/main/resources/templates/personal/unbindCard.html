@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="application/javascript" src="personal/order/layer.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="alert alert-warning" role="alert">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p class="text-left">
+                            <button type="button" class="btn" onclick="navigate(12)"> 快捷支付解绑 </button>
+                            <button type="button" class="btn" onclick="navigate(15)"> 一键支付解绑 </button>
+                            <span>选择切换解绑类型</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="selectBankCard">
+                <div class="list-group">
+                    <a href="#" class="list-group-item active" th:switch="${payMode}">
+                        <span th:case="'12'">快捷支付</span>
+                        <span th:case="'15'">一键支付</span>
+                        --- 已绑卡银行卡列表
+                    </a>
+                    <a type="button" class="list-group-item" th:each="bindCard : ${bindCardList}">
+                        <label>
+                            <input class="bindCard" type="radio" name="optionsRadios" th:value="${bindCard.getShortBankAcctId()}">
+                            <span th:text="${bindCard.getCardTypeName()}"></span>
+                            <span th:text="${bindCard.getBankIdName()}"></span>
+                        </label>
+                    </a>
+                    <a type="button" class="list-group-item">
+                        <label th:if="${#lists.isEmpty(bindCardList)}">
+                            尚未绑定银行卡
+                        </label>
+                    </a>
+                </div>
+                <p>
+                    <button type="button" class="btn btn-danger" onclick="unbindCommit()"> 立即解绑 </button>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id = "payMode" th:text="${payMode}"></div>
+    <div id="bindCardListJson" th:text="${bindCardListJson}" style="display: none"></div>
+</div>
+<script type="text/javascript">
+    var bindCardList = JSON.parse($("#bindCardListJson").text());
+    var payMode = $("#payMode").text();
+    var selectedShortBankAcctId = undefined;
+    var selectedBindCard = {};
+    function unbindCommit() {
+        if(selectedShortBankAcctId === undefined){
+            layer.error('未选择银行卡！');
+            return;
+        }
+        initData();
+        console.log('提交付款,请求信息：' + JSON.stringify(selectedBindCard));
+        $.ajax({
+            type: "post",
+            url: "personal/quickpay/unbindcard",
+            data: JSON.stringify(selectedBindCard),
+            contentType : "application/json",
+            success: function (data) {
+                if (data.rspCode == "0000") {
+                    layer.success('解绑成功！');
+                    navigate(payMode);//reload
+                }else{
+                    failed(data.rspCode + " : " + data.rspMsg);
+                }
+                console.log('返回信息：' + JSON.stringify(data))
+            },
+            error: function () {
+                failed();
+            }
+        });
+    }
+    function failed(msg) {
+        if(msg == undefined){
+            layer.error('支付失败！');
+        }else {
+            layer.error('支付失败！' + msg);
+        }
+    }
+    $(".bindCard").on('click', function (event) {
+        var target = event.target;
+        if(target.checked){
+            selectedShortBankAcctId = target.value;
+        }
+        console.log('选择了卡：' + JSON.stringify(selectedShortBankAcctId));
+    })
+    function navigate(type) {
+        var path = "personal/unbindCardPage" + "?payMode=" + type;
+        $('#main').load(path);
+    }
+    function initData() {
+        for (i = 0; i < bindCardList.length; i++){
+            var bindCard = bindCardList[i];
+            var sNo = bindCard.shortBankAcctId;
+            if(sNo === selectedShortBankAcctId){
+                selectedBindCard = bindCard;
+                break;
+            }
+        }
+        console.log('选择的卡片信息：' + JSON.stringify(selectedBindCard));
+        selectedBindCard.payMode = payMode;
+    }
+</script>
+</body>
+</html>

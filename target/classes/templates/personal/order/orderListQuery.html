@@ -1,0 +1,86 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="personal/order/etao.js"></script>
+	<script type="text/javascript" src="personal/order/cart.js"></script>
+	<link href="personal/order/cart.css" media="screen" rel="stylesheet" type="text/css" />
+    
+    <script type="text/javascript">
+    	$(function(){
+    		$("#cartTable").find("tr:gt(0)").each(function(){
+    			$(this).find(".return-goods").click(function(){
+		    		$.ajax({
+						 type: "post",
+						 url: "personal/orderSingleQuery",
+						 data: "orderId="+$(this).data().bind,
+						 success: function (data) {
+							 $('#main').html(data);
+							 return;
+						 },
+						 error: function () {
+						 	alert("服务器异常");
+						 },
+						 complete: function () {
+						 
+						 }
+					});
+    			});
+    		});
+    		$("ul.page").find("li").each(function() {
+    			$(this).click(function(){
+    				$('#main').load("personal/orderListQuery/"+this.value)
+    			});
+    		});
+    	});
+    </script>
+</head>
+<body>
+  <div class="container">
+	<div class="cart-wrap" style="float:right;">
+		<table id="cartTable" class="cart table table-condensed">
+			<thead>
+				<tr>
+					<th class="t-goods"><label>订单ID</label></th>
+					<th class="t-goods"><label>时间</label></th>
+					<th class="t-qty"><label>订单类型</label></th>
+					<th class="t-qty"><label>订单状态</label></th>
+					<th class="t-subtotal text-center"><label>订单金额</label></th>
+					<th class="t-action text-right"><label>操作</label></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:id="${order.id}" th:each="order : ${orders}">
+					<td><span id="orderId" class="small-bold-red" th:text="${order.id}"></span></td>
+					<td><span id="orderId" th:text="${order.txnBeginTimeFormat}"></span></td>
+					<td th:text="${order.orderTypeDesc}"></td>
+					<td th:text="${order.orderStatusDesc}"></td>
+					<td class="selling-price number small-bold-red text-right"
+								style="padding-top: 1.1rem;" th:attrappend="data-bind=${order.orderAmountFormat}"></td>
+					<td>
+					<td style="padding-top: 1.1rem;">
+<!-- 						<a href="javascript:void(0);" onclick="confirmation()" th:if="${order.orderType} != null"> -->
+							<span class="return-goods btn btn-xs btn-warning"
+								  th:if="${order.isShow()}"
+								  th:attrappend="data-bind=${order.id}">详情</span>
+<!-- 						</a> -->
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<ul class="pagination page" style="float:right;">
+		    <li th:if="${pageNum} != 1" value="1"><a>首页</a></li>
+<!-- 		    <li th:if="${pageNum} != 1" value="1"><a>&laquo;</a></li> -->
+		    <li th:if="${pageNum} != 1" th:value="${prePage}"><a>上一页</a></li>
+		    <li th:value="${pageNum}" ><a th:text="${pageNum}" ></a></li>
+		    <li th:value="${nextPage}"><a>下一页</a></li>
+		    <li th:value="${lastPage}"><a>末页</a></li>
+<!-- 		    <li><a href="#">&raquo;</a></li> -->
+		</ul>
+	</div>
+  </div>
+    
+</body>
+</html>

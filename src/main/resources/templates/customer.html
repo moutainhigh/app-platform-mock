@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <p th:text="'id =' + ${customer.id}+ ''"  />
+    <p th:text= "'platformId = ' + ${customer.platformId} + ''"/>
+    <p th:text= "'loginId = '+ ${customer.loginId}+ ''" />
+    <p th:text="'loginType ='+ ${customer.loginType}+''"  />
+    <p th:text="'name = '+ ${customer.name} +''" />
+    <p th:text="'status = ' + ${customer.status} +''" />
+    <p th:text="'customerType = ' + ${customer.customerType}+''" />
+    <p th:text="'updateTime = ' + ${#calendars.format(customer.updateTime,'dd MMMM yyyy')} +''" />
+    <p th:text="'createTime = ' + ${#calendars.format(customer.createTime,'dd MMMM yyyy')} +''"/>
+</body>
+</html>

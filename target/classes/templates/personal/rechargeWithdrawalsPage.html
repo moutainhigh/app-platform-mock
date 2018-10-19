@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+  
+  <div class="container">
+	<form class="form-horizontal" style="padding: 5px 100px 5px;" id="form-bindCard">
+		<div class="form-group" style="margin-top: 10px;">
+			<fieldset class="col-sm-2 control-label">
+				<legend>充值提现</legend>
+			</fieldset>
+		</div>
+		<div class="form-group">
+			<label for="account" class="col-sm-2 control-label">余额：</label>
+			<div class="col-sm-4">
+				<input type="text" id="balance" name="balance" class="form-control" readonly="readonly" th:value="${balance}">
+			</div>
+<!-- 			<div style="display: inline"> -->
+<!-- 				<label class="help-block">单位厘, 1元=1000厘</label> -->
+<!-- 			</div> -->
+		</div>
+		<div class="form-group">
+			  <label for="phone" class="col-sm-2 control-label">功能：*</label>
+			  <div class="col-sm-1">
+			  		<input type="radio" name="functionCode" id="f-recharge" value="14" checked="checked">充值
+			  </div>
+<!-- 			  <div class="col-sm-1"> -->
+<!-- 			  		<input type="radio" name="functionCode" id="f-withdrawals"  value="15">提现 -->
+<!-- 			  </div> -->
+		</div>
+		<div class="form-group switch recharge">
+			  <label for="phone" class="col-sm-2 control-label">支付方式：*</label>
+			  <div class="col-sm-2">
+			  		<input type="radio" name="payCode" id="p-bankAcctCard" value="11" checked="checked">银行卡支付
+			  </div>
+<!-- 			  <div class="col-sm-2"> -->
+<!-- 			  		<input type="radio" name="payCode" value="12">快捷支付 -->
+<!-- 			  </div> -->
+			  <div class="col-sm-2">
+			  		<input type="radio" name="payCode" id="p-aggregate"  value="13">聚合支付
+			  </div>
+		</div>
+		<div class="form-group switch recharge withdrawals p-aggregate p-bankAcctCard">
+		  <label for="IdentificationCard" class="col-sm-2 control-label">银行卡号：*</label>
+		  <div class="col-sm-4">
+			<select class="form-control" name="bankAcctId" id="bankAcctId">
+			  	<option th:value="${bindCard.memberBankAcctId}" th:text="${bindCard.bankAcctId}" th:each="bindCard : ${bindCardList}"/>
+			  </select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="account" class="col-sm-2 control-label">交易金额：</label>
+			<div class="col-sm-4">
+				<input type="number" id="payAmount" name="payAmount" class="form-control" />
+			</div>
+<!-- 			<div style="display: inline"> -->
+<!-- 				<label class="help-block">单位厘, 1元=1000厘</label> -->
+<!-- 			</div> -->
+		</div>
+		<div class="form-group">
+			<label for="address" class="col-sm-2 control-label"></label>
+			<div class="col-sm-4">
+				<button class="btn btn-lg btn-primary btn-block" type="button" id="formSubmitButton" onclick="formSubmit()">确定</button>
+			</div>
+		</div>
+	</form>
+	<div id="qrCodeDiv" class="col-md-4 hidden" style="margin:5px 0px 0px 20%;" >
+		 <table class="table" style="width:300px;height:300px;">  
+	    	<tbody>  
+	           <tr>
+	           	 <td style="text-align:center;border:none;padding:0px"><img id="imgQrcode" alt="生成二维码" class="hisrc"/></td>
+	           </tr>  
+	    	</tbody>  
+   		</table>  
+		
+	</div>
+  </div>
+    <script type="text/javascript">
+    	var orderId;
+	    $(function(){
+			$("#form-bindCard").find("input[name='functionCode']").click(function(){
+	// 			console.log(this);
+				$(".switch").hide();
+				$("."+this.id.replace("f-","")).show();
+				$("#p-bankAcctCard").prop('checked',true);
+				
+			});
+			$("#form-bindCard").find("#p-bankAcctCard").click(function(){
+				$(".p-bankAcctCard").show();
+				$("#qrCodeDiv").addClass("hidden");
+			});
+			$("#form-bindCard").find("#p-aggregate").click(function(){
+				$(".p-aggregate").hide();
+				if(!!$("#imgQrcode").attr('src')){
+					$("#qrCodeDiv").removeClass("hidden");
+				}
+			});
+			
+		});
+    
+	    //生成聚合支付二维码
+	    function generateQrcode(){
+	    	var obj = new Object();
+	    	obj.bankAcctId = $("#bankAcctId").val();
+	    	obj.payAmount = $("#payAmount").val();
+	    	//充值
+	    	obj.functionCode = 14;
+			var submitData=encodeURI(JSON.stringify(obj),true)
+	    	$.ajax({
+					type: "get",
+					url: "aggregate/qrcode?params="+submitData,
+// 					data: JSON.stringify(data),
+// 					contentType : "application/json",
+					success: function (data) {
+						if (data.rspCode == "0000") {
+					    	$("#qrCodeDiv").removeClass("hidden");
+	    					$("#imgQrcode").attr('src','data:image/png;base64,'+data.imageBase64);
+	    					orderId = data.orderId;
+	    					refreshQrcodeResult(2000);
+							return;
+						}
+					},
+					error: function () {
+					},
+					complete: function () {
+					}
+				});
+	    	
+	    }
+	    
+    	//间隔n秒请求后台聚合支付结果
+		function refreshQrcodeResult(timeInterval){
+			var interval = setInterval(function(){
+				$.ajax({
+					type: "get",
+					url: "personal/orderPayStatus/"+orderId,
+// 					data: JSON.stringify(data),
+// 					contentType : "application/json",
+					success: function (data) {
+						if (data.rspCode == "0000" && data.payStatus != "0") {
+							$('#main').html("<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\"><h2>订单受理成功</h2></div>");
+							clearInterval(interval);
+							return;
+						}
+					},
+					error: function () {
+					},
+					complete: function () {
+					}
+				});
+    		}, timeInterval);
+    	}
+    	
+    	function formSubmit(){
+    		
+    		if($("#p-aggregate").prop("checked")){
+    			generateQrcode();
+    			return;
+    		}
+    		
+    		var check = formCheck();
+			if (check === false) {
+				return false;
+			}
+			
+			var functionCode = $("input[name='functionCode']:checked").val();
+			if (functionCode == "15") {
+				//提现金额小于余额
+				if (Number($("input[name='balance']").val()) < Number($("input[name='payAmount']").val())) {
+					alert("提现金额需小于余额")
+					return false;
+				}
+			}
+			
+    		var data=$('#form-bindCard').serializeObject();
+			var submitData=decodeURIComponent(data,true)
+			$("#formSubmitButton").attr("disabled","disabled");
+			$.ajax({
+				 type: "post",
+				 url: "personal/rechargeWithdrawals",
+				 data: JSON.stringify(data),
+				 contentType : "application/json",
+				 success: function (data) {
+					 if (data.rspCode == "0000") {
+						 $('#main').html("<div class=\"col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main\"><h2>订单处理成功</h2></div>");
+						 return;
+					 }
+					 alert(data.rspMsg);
+					 $("#formSubmitButton").removeAttr("disabled");
+				 },
+				 error: function () {
+				 	alert("error");
+				 	$("#formSubmitButton").removeAttr("disabled");
+				 },
+				 complete: function () {
+				 
+				 }
+			});
+    	}
+    	function formCheck() {
+			var check = false;
+			check = notNull($("select[name='bankAcctId']").val());
+			if (check === false) {
+				alert("银行卡号 不能为空")
+				return false;
+			}
+			check = notNull($("input[name='payAmount']").val());
+			if (check === false) {
+				alert("交易金额 不能为空")
+				return false;
+			}
+			if ($("input[name='payAmount']").val() <= 0) {
+				alert("交易金额 必须大于0")
+				return false;
+			}
+			return true;
+		}
+		function notNull(param) {
+			if (null === param) {
+				return false;
+			}
+			if (param.trim() === "") {
+				return false;
+			}
+			return true;
+		}
+
+        /**
+		 * 金额格式化
+         */
+        $("#payAmount").blur(function(){
+            var oNum = $("#payAmount")[0].value;
+            if(oNum < 0){
+                oNum = oNum * -1;
+            }
+            var fNum = parseFloat(oNum).toFixed(2);
+            $("#payAmount")[0].value = fNum;
+        });
+    </script>
+  </body>
+</html>

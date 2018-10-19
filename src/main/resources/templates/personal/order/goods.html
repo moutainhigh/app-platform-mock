@@ -1,0 +1,106 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="personal/order/etao.js"></script>
+	<script type="text/javascript" src="personal/order/cart.js"></script>
+	<link href="personal/order/cart.css" media="screen" rel="stylesheet" type="text/css" />
+    
+    <script type="text/javascript">
+    	function confirmation() {
+    		var confirm = "";
+    		$("#cartTable").find("tr:gt(0)").each(function(){
+    			var check = $(this).find(":checkbox")[0].checked;
+    			if (check === true) {
+    				//产品id,产品名称,商家id,商家名称,单价,数量
+    				confirm += ";" + this.id;//产品id
+//     				confirm += "," + $(this).find(".good-name").text();
+    				confirm += "," + $(this).children("td:eq(0)").text();//产品名称
+    				confirm += "," + $(this).children("td:eq(1)").text();//商家id
+    				confirm += "," + $(this).children("td:eq(2)").text();//商家名称
+    				confirm += "," + $(this).children("td:eq(3)").text();//单价
+    				confirm += "," + $(this).find(":text").val();//数量
+    			}
+    		});
+    		if (confirm == "") {
+    			return;
+    		}
+    		console.log(confirm);
+    		$.ajax({
+				 type: "post",
+				 url: "personal/orderConfirm",
+				 data: "confirm=" + decodeURIComponent(confirm.substr(1),true),
+				 success: function (data) {
+					 $('#main').html(data);
+					 return;
+				 },
+				 error: function () {
+				 	alert("服务器异常");
+				 },
+				 complete: function () {
+				 
+				 }
+			});
+    	}
+    </script>
+</head>
+<body>
+  <div class="container">
+	<div class="cart-wrap" style="float:right;">
+		<table id="cartTable" class="cart table table-condensed">
+			<thead>
+				<tr>
+<!-- 					<th class="t-checkbox"><label><input class="check-all check" type="checkbox" />全选</label></th> -->
+					<th class="t-goods"><label>产品名称</label></th>
+					<th class="text-center" style="display: none;">卖家Id</th>
+					<th>卖家</th>
+					<th class="t-selling-price text-center"><label>销售单价</label></th>
+					<th class="t-qty text-center"><label>采购数量</label></th>
+					<th class="t-subtotal text-center"><label>金额小计</label></th>
+					<th class="t-action"><label>操作</label></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:id="${good.id}" th:each="good : ${goods}" class="good-id">
+					<td colspan="1" class="goods"><label class="good-name"> <input type="checkbox" class="check-one check" th:text="${good.name}"/></label></td>
+					<td class="customerId" style="display: none;" th:text="${good.customerId}"></td>
+					<td class="customerName" th:text="${good.customerName}"></td>
+					<td class="selling-price number small-bold-red text-right good-price"
+								style="padding-top: 1.1rem;" th:attrappend="data-bind=${good.price}" th:text="${good.price}"></td>
+					<td>
+						<div class="input-group input-group-sm">
+							<span class="input-group-addon minus">-</span>
+								<input type="text" class="number form-control input-sm good-num" value="1" />
+							<span class="input-group-addon plus">+</span>
+						</div>
+					</td>
+					<td class="subtotal number small-bold-red text-right" style="padding-top: 1.1rem;"></td>
+					<td class="action" style="padding-top: 1.1rem;"><span class="delete btn btn-xs btn-warning">删除</span></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="row">
+			<div class="col-md-12 col-lg-12 col-sm-12">
+				<div class="cart-summary">
+					<div style="margin-left: 2rem;" class="pull-right">
+						<a href="javascript:void(0);" onclick="confirmation()"
+							id="btn_settlement" type="button" class="btn btn-primary" disabled>生成订单</a>
+					</div>
+					<div style="margin-left: 1rem; margin-top: 0.4rem;" class="pull-right total">
+						<label>金额合计:<span id="priceTotal" class="price-total large-bold-red">0.00</span></label>
+					</div>
+					<div style="margin-top: 4px;" class="pull-right">
+						<label>您选择了<span id="itemCount" class="large-bold-red" style="margin: 0 4px;"></span>种产品型号，共计<span id="qtyCount" class="large-bold-red" style="margin: 0 4px;"></span>件
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  </div>
+    
+</body>
+</html>

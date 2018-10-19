@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div class="col-sm-3 col-md-2 sidebar" th:fragment="personalLeftMenu">
+	          <ul class="nav nav-sidebar" id="personalLeftNavigation">
+	            <li id="query"><a>个人信息查询<span class="sr-only">(current)</span></a></li>
+	            <li id="bindCard"><a>绑卡</a></li>
+	            <li id="bindCardList"><a>绑卡列表</a></li>
+	            <li id="goods"><a>下单</a></li>
+	            <li id="orderListQuery"><a>查询订单</a></li>
+	            <li id="rechargeWithdrawals"><a>充值提现</a></li>
+	            <li id="unbindCard"><a>解绑银行卡</a></li>
+	            <li id="post"><a  th:if="${idContent} == '13671537863'">执行请求(慎点)</a></li>
+	          </ul>
+		</div>
+		<script type="text/javascript" th:fragment="personalLeftMenuEvent">
+			//col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main
+			$(function(){
+				$('#personalLeftNavigation li').click(function(){
+					var that = $(this);
+					var val = that.attr("id");
+					var url = "";
+					if (val == "query") {
+						url = "personal/query";
+					} else if (val == "bindCardList") {
+						url = "personal/bindCardList";
+					} else if (val == "bindCard") {
+						url = "personal/bindCardPage";
+					} else if (val == "goods"){
+						url = "personal/goods";
+					} else if (val == "orderListQuery"){
+						url = "personal/orderListQuery/1";
+					} else if (val == "rechargeWithdrawals"){
+						url = "personal/rechargeWithdrawalsPage";
+					}  else if (val == "unbindCard"){
+                        url = "personal/unbindCardPage?payMode=12";
+                    }  else if (val == "post"){
+                        url = "post/index";
+                    } else {
+						return;
+					}
+					 $('#main').load(url, function(){
+							$('#personalLeftNavigation .active').removeClass("active");
+							that.addClass("active");
+					 });
+
+				});
+			});
+		</script>
+	</body>
+</html>

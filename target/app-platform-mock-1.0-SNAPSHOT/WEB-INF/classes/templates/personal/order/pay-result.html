@@ -1,0 +1,44 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="personal/order/etao.js"></script>
+	<script type="text/javascript" src="personal/order/cart.js"></script>
+	<link href="personal/order/cart.css" media="screen" rel="stylesheet" type="text/css" />
+    
+    <style type="text/css">
+    	.pay-active{
+/*      		background-color: #f5f5f5; */
+    		background-color: #7ba9d0;
+    	}
+    	.bankacctcard-active{
+    		background-color: #f183a1;
+    	}
+    </style>
+    
+</head>
+<body>
+  <div class="container" style="margin-left: 211px;">
+	<div class="cart-wrap">
+		<div class="masthead" id="pay-list">
+			<h3 class="text-muted" th:text="'&nbsp' + ${result}"></h3>
+		</div>
+		<div class="row">
+			<div class="col-md-12 col-lg-12 col-sm-12">
+				<div class="cart-summary">
+					<div style="margin-left: 1rem; margin-top: 0.4rem;" class="pull-right total">
+						<label>金额合计:<span class="price-total large-bold-red" th:text="${orderAmount}"></span></label>
+					</div>
+					<div style="margin-top: 4px;" class="pull-right">
+						<label>订单id<span id="orderId" class="large-bold-red" style="margin: 0 4px;" th:text="${orderId}"></span>，您选择了<span class="large-bold-red" style="margin: 0 4px;" th:text="${typeCount}"></span>种产品型号，共计<span class="large-bold-red" style="margin: 0 4px;" th:text="${count}"></span>件
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    
+</body>
+</html>

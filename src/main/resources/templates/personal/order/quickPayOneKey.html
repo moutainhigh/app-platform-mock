@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link href="personal/order/listgroupcustom.css" media="screen" rel="stylesheet" type="text/css" />
+    <!-- import Vue before Element -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script type="application/javascript" src="personal/order/layer.js"></script>
+</head>
+<body>
+<div class="container">
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-warning" role="alert">
+            <div class="row">
+                <div class="col-sm-8">
+                    <p class="text-left">
+                        请尽快付款！订单号：<strong id="orderId" th:text="${orderId}"></strong>
+                    </p>
+                </div>
+                <div class="col-sm-4">
+                    <p class="text-right">
+                        应付金额<strong id="payAmount" style="color: red;" th:text="${payamount}"></strong>元
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div id="selectBankCard">
+            <div class="list-group">
+                <a href="#" class="list-group-item active">
+                    已绑卡银行卡列表(一键支付)
+                </a>
+                <a type="button" class="list-group-item" th:each="bindCard : ${bindCardList}">
+                    <label>
+                        <input class="bindCard" type="radio" name="optionsRadios" th:value="${bindCard.getShortBankAcctId()}">
+                        <span th:text="${bindCard.getCardTypeName()}"></span>
+                        <span th:text="${bindCard.getBankIdName()}"></span>
+                    </label>
+                </a>
+                <a type="button" class="list-group-item">
+                    <label th:if="${#lists.isEmpty(bindCardList)}">
+                        尚未绑定银行卡，请绑定新卡(一键支付)
+                    </label>
+                </a>
+            </div>
+            <p>
+                <button type="button" class="btn btn-default btn-sm btn-link" onclick="bindNewCard()"> 绑定新的银行卡 (一键支付) </button>
+            </p>
+            <p>
+                <button type="button" class="btn btn-danger" onclick="payCommit()"> 立即支付(一键支付) </button>
+            </p>
+        </div>
+    </div>
+</div>
+</div>
+<div id="bindCardListJson" th:text="${bindCardListJson}" style="display: none"></div>
+<div id="payeeUId" th:text="${payeeUId}" style="display: none"></div>
+</body>
+
+<script>
+    var bindCardList = JSON.parse($("#bindCardListJson").text());
+    var payeeUId = $("#payeeUId").text();
+    var selectedShortBankAcctId = undefined;
+    var selectedBindCard = {};
+    var validCode;
+    var commitFlag = false;
+    var orderId = $("#orderId").text();
+    var payAmount = $("#payAmount").text();
+    function bindNewCard() {
+        var path = "personal/quickpayBindCard/" + orderId + "?type=1&payeeUId=" +
+            payeeUId + "&payAmount=" + payAmount;
+        $('#main').load(path);
+    }
+    function payCommit() {
+        if(selectedShortBankAcctId === undefined){
+            layer.error('未选择银行卡！');
+            return;
+        }
+        if(!commitFlag){
+            commitFlag = true;
+            initData();
+            console.log('提交付款,请求信息：' + JSON.stringify(selectedBindCard));
+            $.ajax({
+                type: "post",
+                url: "personal/quickpay/pay",
+                data: JSON.stringify(selectedBindCard),
+                contentType : "application/json",
+                success: function (data) {
+                    if (data.rspCode == "0000") {
+                        paySuccess();
+                    }else{
+                        commitFlag = false;
+                        payFailed(data.rspCode + " : " + data.rspMsg);
+                    }
+                    console.log('返回信息：' + JSON.stringify(data))
+                },
+                error: function () {
+                    commitFlag = false;
+                    payFailed();
+                }
+            });
+        }
+    }
+    function payFailed(msg) {
+        if(msg == undefined){
+            layer.error('支付失败！');
+        }else {
+            layer.error('支付失败！' + msg);
+        }
+    }
+    function paySuccess() {
+        layer.success('支付成功！');
+        var path = 'personal/orderSingleQuery?orderId=' + orderId;
+        $("#main").load(path);
+    }
+    $(".bindCard").on('click', function (event) {
+        var target = event.target;
+        if(target.checked){
+            selectedShortBankAcctId = target.value;
+        }
+        console.log('选择了卡：' + JSON.stringify(selectedShortBankAcctId));
+    })
+    
+    function initData() {
+        for (i = 0; i < bindCardList.length; i++){
+            var bindCard = bindCardList[i];
+            var sNo = bindCard.shortBankAcctId;
+            if(sNo === selectedShortBankAcctId){
+                selectedBindCard = bindCard;
+                break;
+            }
+        }
+        console.log('选择的卡片信息：' + JSON.stringify(selectedBindCard));
+        selectedBindCard.payMode = "15";
+        selectedBindCard.orderId = orderId;
+        selectedBindCard.isOpenQuick = '1';
+        selectedBindCard.payeeUId = payeeUId;
+    }
+</script>
+</html>
