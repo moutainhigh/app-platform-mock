@@ -1,7 +1,0 @@
-<project 
-	name="app-platform-mock"
-	default="all" 
-	basedir="." 
-	xmlns:ivy="antlib:org.apache.ivy.ant">
-	<import file="${buildscripts.dir}/common-jar-targets.xml"/>
-</project>
